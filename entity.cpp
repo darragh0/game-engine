@@ -1,7 +1,6 @@
 #include "entity.h"
 #include <iostream>
 
-
 Entity::Entity(int width, int height)
     : grid(width, height) {}
 
@@ -93,15 +92,26 @@ void Scene::addSprite(Sprite &sprite) {
 
 
 void Scene::show() {
+
+    // \033[nA   -> Moves the cursor up n columns
+    // \033[?25l -> Hides cursor
+
+    std::cout << "\r\033[" + std::to_string(this->grid.height - 1) + "A\033[?25l";
+
     for (int y = this->grid.height - 1; y > -1; y--) {
-         for (int x = 0; x < this->grid.width; x++) {
+        const char* str;
+        for (int x = 0; x < this->grid.width; x++) {
             Grid::Cell cell = this->grid.getCell(x, y);
-            std::cout << ("\033[" + std::to_string(cell.color) + "m")
-                      << cell.data
-                      << "\033[0;0m";
+            str = ("\033[" + std::to_string(cell.color) + "m" + cell.data + "\033[0;0m").c_str();
+            std::cout.write(str, sizeof (str));
         }
-        std::cout << std::endl;
+
+        if (y != 0)
+            std::cout << '\n';
     }
+
+    std::cout.flush();
+
 }
 
 
